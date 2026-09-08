@@ -1,3 +1,19 @@
+What the Script DoesThis Python script is a lightweight API integration client designed to connect to the Brave Search API (/res/v1/llm/context) and retrieve clean, structured web search data.
+
+How it works under the hood, step by step:
+
+Imports Core Libraries: It imports requests (Python’s standard library for HTTP calls) and os (to securely pull your API key from environment variables).  
+Constructs the Request:Endpoint: Targets Brave’s LLM search endpoint ([https://api.search.brave.com/res/v1/llm/context](https://api.search.brave.com/res/v1/llm/context)).
+Headers & Authentication: Adds X-Subscription-Token (Brave's required header format) to authenticate the request with your API key.
+Parameters: Sets the search query (q) and limits the payload to 5 results (count).
+Executes the HTTP GET Call: Sends the GET request to Brave's servers.  
+
+Error Handling & Parsing: Checks for a 200 OK status code. If successful, it parses the JSON response body and extracts the title, URL, and snippet text for each result.  
+
+Output: Prints the formatted results directly to your console screen.
+
+
+
 import os
 import requests
 
@@ -59,3 +75,4 @@ if __name__ == "__main__":
     # Test execution
     search_query = "latest agentic AI frameworks 2026"
     fetch_brave_search_context(search_query)
+    
