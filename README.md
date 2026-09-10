@@ -117,6 +117,37 @@ def fetch_brave_search_context(query: str):
 
 ---
 
+
+## Local Search & Interactive Mapping
+
+`brave_map_demo.py` extends this project to Brave's Local Search API, finding real-world places and rendering them as an interactive map — a second, independent proof-of-concept alongside the web search integration above.
+
+**What it does:**
+- Queries Brave's Place Search endpoint (`/local/place_search`) to find businesses near a location
+- Enriches results with full details — address, phone, coordinates — via a batched call to `/local/pois`
+- Renders the results as a real interactive map using [Folium](https://python-visualization.github.io/folium/) (Python + Leaflet.js + OpenStreetMap tiles)
+
+**Setup:**
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+**Run it:**
+```bash
+export BRAVE_API_KEY="your_api_key_here"
+python3 brave_map_demo.py
+```
+
+Generates `brave_places_map.html` in the project folder — open it in any browser to view the map.
+
+
+
+
+
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+
+
