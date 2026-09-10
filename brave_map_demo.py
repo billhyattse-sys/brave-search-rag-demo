@@ -58,17 +58,20 @@ def fetch_place_details(api_key: str, place_ids: list) -> list:
 
 
 def extract_coordinates(place: dict):
-    """NOTE: I could not verify the exact coordinate field name against a
-    live response (no network access in the environment this was written in).
-    This tries the field-name patterns Brave's docs suggest are most likely,
-    in order, and tells you plainly if none match so you can adjust.
+    """CONFIRMED against a real API response (Sep 2026): Brave returns
+    coordinates as a plain two-item list: "coordinates": [lat, lon] —
+    not a named field. That's the first pattern checked below. The other
+    patterns are kept as fallbacks in case a different endpoint or place
+    type ever returns a different shape."""
+    coords = place.get("coordinates")
+    if isinstance(coords, (list, tuple)) and len(coords) == 2:
+        try:
+            return float(coords[0]), float(coords[1])
+        except (TypeError, ValueError):
+            pass
 
-    If this returns None for your real results, run this file with
-    --debug once to print the raw JSON and see the actual key name,
-    then fix the lookup below — it'll be a one-line change."""
     candidates = [
         lambda p: (p.get("latitude"), p.get("longitude")),
-        lambda p: (p.get("coordinates", {}).get("latitude"), p.get("coordinates", {}).get("longitude")),
         lambda p: (p.get("location", {}).get("lat"), p.get("location", {}).get("lng")),
         lambda p: (p.get("lat"), p.get("lon")),
     ]
@@ -96,9 +99,21 @@ def build_map(places: list, center_lat: float, center_lon: float, output_file: s
             print(f"  Skipped '{name}' — no coordinates found in response (see extract_coordinates()).")
             continue
         lat, lon = coords
+
+        # Confirmed present in real responses: postal_address and contact.telephone.
+        # Build a richer popup if they're there; fall back to just the name if not.
+        address = place.get("postal_address", {}).get("displayAddress", "")
+        phone = place.get("contact", {}).get("telephone", "")
+        popup_lines = [f"<b>{name}</b>"]
+        if address:
+            popup_lines.append(address)
+        if phone:
+            popup_lines.append(phone)
+        popup_html = "<br>".join(popup_lines)
+
         folium.Marker(
             location=[lat, lon],
-            popup=name,
+            popup=folium.Popup(popup_html, max_width=250),
             tooltip=name,
         ).add_to(place_map)
         plotted += 1
